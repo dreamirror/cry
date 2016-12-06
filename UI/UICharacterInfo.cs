@@ -2,9 +2,10 @@
 using System.Collections;
 using SharedData;
 
-public class UICharacterInfo : MonoBehaviour
+//这个类主要用来维护主界面角色的信息
+public class UICharacterInfo : MonoBehaviour //角色的信息的类
 {
-    Color[] m_level_color =
+    Color[] m_level_color = //不同等级的颜色数组
     {
         new Color(70f/255f,200f/255f,1f)
         ,new Color(233f/255f,200f/255f,109f/255f)
@@ -33,7 +34,7 @@ public class UICharacterInfo : MonoBehaviour
     {
         if(creature == null)
         {
-            gameObject.SetActive(false);
+            gameObject.SetActive(false); //激活
             return;
         }
         gameObject.SetActive(true);

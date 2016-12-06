@@ -146,8 +146,8 @@ public class MainLayout : MonoBehaviour
         {
             if (team_data != null && i < team_data.Creatures.Count)
             {
-                Creature creature = team_data.Creatures[i].creature;
-                m_Characters[i].Init(AssetManager.GetCharacterAsset(creature.Info.ID, creature.SkinName), UICharacterContainer.Mode.UI_Normal);
+                Creature creature = team_data.Creatures[i].creature; //得到角色的信息
+                m_Characters[i].Init(AssetManager.GetCharacterAsset(creature.Info.ID, creature.SkinName), UICharacterContainer.Mode.UI_Normal); //初始化角色的容器
                 if (m_Characters[i].Character != null)
                 {
                     m_Characters[i].Character.Creature = creature;
@@ -157,7 +157,7 @@ public class MainLayout : MonoBehaviour
             }
             else
             {
-                m_Characters[i].Uninit();
+                m_Characters[i].Uninit(); //析构掉角色的容器
             }
         }
         if(team_data != null)

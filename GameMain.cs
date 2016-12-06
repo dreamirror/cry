@@ -38,7 +38,7 @@ public class MenuParams //这是一个管理字典的类
     const string keyAdditive = "bAdditive";
     const string keyBack = "bBack";
     const string keyStack = "bStack";
-    public const string keyPopup = "popup";
+    public const string keyPopup = "popup"; //这个表示 弹出框的Container
 
     public bool bAdditive
     {
@@ -57,7 +57,7 @@ public class MenuParams //这是一个管理字典的类
                 parms[keyAdditive] = value; //如果有这个key就直接返回这个key对应的value
         }
     }
-    public bool bStack //原理同上
+    public bool bStack //没看懂
     {
         get
         {//default true
@@ -73,7 +73,7 @@ public class MenuParams //这是一个管理字典的类
                 parms[keyStack] = value;
         }
     }
-    public bool bBack //原理同上
+    public bool bBack //没看懂
     {
         get
         {//default false
@@ -161,15 +161,15 @@ public class MenuParams //这是一个管理字典的类
 
     //////////////////////////////////////////////////////////
     //for Popup
-    public void AddPopup(PopupContainer obj) //添加 
+    public void AddPopup(PopupContainer obj) //添加 弹出框
     {
         AddParam(keyPopup, obj);
     }
-    public PopupContainer GetPopup()
+    public PopupContainer GetPopup() //得到弹出框
     {
         return GetObject<PopupContainer>(keyPopup);
     }
-    public void RemovePopup()
+    public void RemovePopup() //移除弹出框
     {
         if (parms.ContainsKey(keyPopup) == true)
             parms.Remove(keyPopup);
@@ -220,7 +220,7 @@ public class GameMain : MonoBehaviour
     {
         get
         {
-            if (BattleBase.CurrentBattleMode != eBattleMode.None)
+            if (BattleBase.CurrentBattleMode != eBattleMode.None) //有战斗场景
                 return GameMenu.Battle;
 
             MenuInfo menu = GetCurrentMenu();
@@ -285,16 +285,16 @@ public class GameMain : MonoBehaviour
             return true;
         }
 
-        public void Uninit(bool destroy, bool bBack=true) //类似于析构函数
+        public void Uninit(bool destroy, bool bBack=true) //类似于析构函数 bBack 默认的是真
         {
             if (obj == null)
                 return;
-            MenuBase iMenu = obj.GetComponent<MenuBase>();
-            if (iMenu != null)
+            MenuBase iMenu = obj.GetComponent<MenuBase>(); //得到预设体绑定的脚本
+            if (iMenu != null) //如果有脚本
             {
-                if (iMenu.Uninit(bBack) == true)
+                if (iMenu.Uninit(bBack) == true) 
                 {
-                    if (destroy == true)
+                    if (destroy == true)//如果是要销毁掉
                     {
                         GameObject.Destroy(obj); //销毁当前的预设体实例
                         obj = null;
@@ -376,14 +376,14 @@ public class GameMain : MonoBehaviour
         if (CurrentGameMenu == GameMenu.IDLE) //空闲状态
         {
             MenuInfo menu = LoadMenu(GameMenu.MainMenu, new MenuParams()); //初始化主场景
-            ChangeBG(menu); //切换场景到主场景
+            ChangeBG(menu); //切换背景
             menu.SetActive(true); //激活主场景
             StackMenu(menu); //将主场景入栈
         }
         else //非空闲状态
         {
             MenuInfo menu = GetCurrentMenu(); //获取当前的场景
-            ChangeBG(menu); //切换到当前的场景
+            ChangeBG(menu); //切换背景
             menu.Init(); //初始化当前的场景
         }
 
@@ -660,7 +660,7 @@ public class GameMain : MonoBehaviour
             return false;
     }
 
-    public void PopupToShortCutMenu() //弹出上面的两种场景
+    public void PopupToShortCutMenu() //弹出上面的两种场景 并且移除掉
     {
         if (FindShortCutMenu() == false) return;
         bool loop = true;
@@ -703,29 +703,29 @@ public class GameMain : MonoBehaviour
 
     public void ChangeMenu(GameMenu gameMenu) //切换场景
     {
-        if(gameMenu == GameMenu.MainMenu)
+        if(gameMenu == GameMenu.MainMenu) //如果是切换到主界面
         {
-            while (m_MenuStack.Count > 2) BackMenu(false);
-            BackMenu();
+            while (m_MenuStack.Count > 2) BackMenu(false); //如果 栈中的场景数量大于2 那么就退格直到退到主界面
+            BackMenu();//退到主界面的前一个就在退一个就是主界面了
             return;
         }
-        ChangeMenu(gameMenu, new MenuParams());
+        ChangeMenu(gameMenu, new MenuParams()); //如果不是切换到主界面那么就按常规的切换
     }
 
-    public void ChangeMenu(GameMenu gameMenu, MenuParams parms)
+    public void ChangeMenu(GameMenu gameMenu, MenuParams parms) //切换场景
     {
-        MenuInfo currentMenu = GetCurrentMenu();
-        if (gameMenu == currentMenu.menu)
+        MenuInfo currentMenu = GetCurrentMenu(); //得到当前的场景
+        if (gameMenu == currentMenu.menu) //如果就是切换到当前的场景那么就把当前的场景激活
         {
             if (parms != null)
             {
-                currentMenu.SetParm(parms);
-                currentMenu.SetActive(true);
-                currentMenu.Init();
+                currentMenu.SetParm(parms); //重新的设置参数
+                currentMenu.SetActive(true); //激活
+                currentMenu.Init(); //初始化
             }
             else
-                currentMenu.UpdateMenu();
-            ChangeBG(currentMenu);
+                currentMenu.UpdateMenu(); //跟新状态
+            ChangeBG(currentMenu); //切换背景
             return;
         }
 
@@ -733,7 +733,7 @@ public class GameMain : MonoBehaviour
         {
             if (parms.bAdditive == false)
             {
-                if (parms.bStack == false)
+                if (parms.bStack == false) //表示上面三种长存的界面是长存在栈中的
                 {
                     PopMenu();
                     RemoveMenu(currentMenu);
@@ -761,7 +761,7 @@ public class GameMain : MonoBehaviour
         StackMenu(newMenu);
         ChangeBG(newMenu);
         if (m_TopFrame != null)
-            m_TopFrame.Init();
+            m_TopFrame.Init();//会在这里面来判断该显示top操作界面上面的东西 
     }
 
     Dictionary<GameMenu, MenuInfo> cachedMenu = new Dictionary<GameMenu, MenuInfo>(); //讲预设体 和他的管理者 存起来的 字典
@@ -773,7 +773,7 @@ public class GameMain : MonoBehaviour
         {
             GameObject obj = Resources.Load(string.Format("Prefab/Menu/{0}", gameMenu.ToString())) as GameObject; //通过 当前gameMenu 的状态来获取 预设体
             menu = Instantiate(obj); //实例化这个预设体
-            menu.transform.SetParent(m_UIRoot.transform, false);
+            menu.transform.SetParent(m_UIRoot.transform, false); //在这里就添加上去了
             menu.transform.localScale = Vector3.one;
             parms.RemoveGameObject(); //从字典中移除所有的预设体
             parms.AddParam<GameObject>(menu); //把这个预设体加入到字典中
@@ -987,7 +987,7 @@ public class GameMain : MonoBehaviour
             GameMain.Instance.ChangeMenu(menu, parms);
         }
     }
-    public bool IsMenuStack()
+    public bool IsMenuStack() //如果是下面三种界面就返回false
     {
         bool bStack = true;
         switch (GameMain.Instance.CurrentGameMenu)

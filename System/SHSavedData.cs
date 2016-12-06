@@ -22,7 +22,7 @@ public class SHSavedData : Singleton<SHSavedData> //这是一个单例类
 {
     static public uint crc32(string input) //应该是在加密
     {
-        var table = new uint[]{ //0x表示是16进制
+        var table = new uint[]{
             0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F,
                 0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
                 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2,
@@ -65,25 +65,24 @@ public class SHSavedData : Singleton<SHSavedData> //这是一个单例类
                 0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5, 0x47B2CF7F, 0x30B5FFE9,
                 0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693,
                 0x54DE5729, 0x23D967BF, 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
-                0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D //这里是256个 即2 的8次方
+                0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
         };
 
         unchecked //看上去 是在解密
         {
-            // unit 表示32位的无符号型的整型
             uint crc = (uint)(((uint)0) ^ (-1));
-            var len = input.Length; //取出输入的字符的长度
+            var len = input.Length;
             for (var i = 0; i < len; i++)
             {
                 crc = (crc >> 8) ^ table[
-                    (crc ^ (byte)input[i]) & 0xFF //这里表示取
-            ];//byte是无符号8位整数
+                    (crc ^ (byte)input[i]) & 0xFF
+            ];
             }
             crc = (uint)(crc ^ (-1));
 
             if (crc < 0)
             {
-                crc += (uint)4294967296; //这个数就是2 的32次方
+                crc += (uint)4294967296;
             }
 
             return crc;

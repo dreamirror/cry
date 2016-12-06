@@ -84,11 +84,11 @@ public interface IPopup //定义了一个接口 接口 的方法都要实现
 	bool bShowImmediately { get; }
 }
 
-public abstract class PopupBase : MonoBehaviour, IPopup //这是一个抽象的类
+public abstract class PopupBase : MonoBehaviour, IPopup //这是一个抽象的类 是一个窗口的基础类
 {
 	public bool ExteralClose;
 
-	protected Popup mParent;
+	protected Popup mParent; //父节点
 	protected object[] m_parms;
 	protected bool is_new;
 	protected bool bShowed = false;
@@ -169,11 +169,11 @@ public class Popup : MonoBehaviour
 		if (bInit == true && bDelayedShow == true)
 		{
 			bDelayedShow = false;
-			m_TWShow.Play(true);
+			m_TWShow.Play(true); //播放一个窗口的效果
 		}
 	}
 	
-	virtual public void OnFinishedTweenScale()
+	virtual public void OnFinishedTweenScale() //下面的一些列都是NGUI的函数
 	{
 		Debug.Log("OnFinishedTweenScale");
 	}
@@ -205,10 +205,10 @@ public class Popup : MonoBehaviour
 		}
 	}
 
-	void InitCurrentPopup(bool is_new)
+	void InitCurrentPopup(bool is_new) //初始化当前的弹出框
 	{
-		PopupInfo info = GetCurrentPopup();
-		IPopup popup = info.Obj.GetComponent<IPopup>();
+		PopupInfo info = GetCurrentPopup(); //得到当前的弹出框
+		IPopup popup = info.Obj.GetComponent<IPopup>(); //得到接口
 		try
 		{
 			if (popup == null)
@@ -223,7 +223,7 @@ public class Popup : MonoBehaviour
 		}        
 	}
 
-	public void Show(bool is_new = false, bool bImmediately = false)
+	public void Show(bool is_new = false, bool bImmediately = false) //展现弹出框
 	{
 		InitCurrentPopup(is_new);
 
@@ -244,7 +244,7 @@ public class Popup : MonoBehaviour
 			bDelayedShow = true;
 	}
 
-	public void Close(bool bForce = false, bool bImmediately = false)
+	public void Close(bool bForce = false, bool bImmediately = false) //关闭弹出框
 	{
 		if (GetCurrentPopup() == null) return;
 		if (bShow == false) return;
@@ -264,14 +264,14 @@ public class Popup : MonoBehaviour
 		}
 	}
 
-	public class PopupInfo
+	public class PopupInfo //弹出窗口的信息 相当于把一个窗口的几个信息 包括有mode obj 和 parms 都整合到一起
 	{
-		public ePopupMode mode;
-		PopupBase obj;
+		public ePopupMode mode; //窗口的类型
+		PopupBase obj; //床窗口的基础类
 		public bool bExternalClose = false;
 		public object[] parms;
 
-		public PopupBase Obj
+		public PopupBase Obj //窗口的基础类
 		{
 			get
 			{
@@ -283,24 +283,24 @@ public class Popup : MonoBehaviour
 			}
 		}
 
-		public PopupInfo(ePopupMode _mode, PopupBase _obj, params object[] _parms)
+		public PopupInfo(ePopupMode _mode, PopupBase _obj, params object[] _parms) //构造函数
 		{
 			mode = _mode;
 			obj = _obj;
 			parms = _parms;
 		}
-		public void SetActive(bool active)
+		public void SetActive(bool active) //将弹出框激活
 		{
 			if(active == false)
-				Obj.OnFinishedHide();
-			Obj.gameObject.SetActive(active);
+				Obj.OnFinishedHide(); //将弹出框显示出来
+			Obj.gameObject.SetActive(active); //
 		}
 		public bool bShowImmediately { get { return obj == null ? false : obj.bShowImmediately; } }
 	}
 
-	public List<PopupInfo> mPopupStack = new List<PopupInfo>();
-	public Dictionary<ePopupMode, PopupBase> mPopupCache = new Dictionary<ePopupMode, PopupBase>();
-	public PopupInfo GetCurrentPopup()
+	public List<PopupInfo> mPopupStack = new List<PopupInfo>(); //管理弹出框的栈
+	public Dictionary<ePopupMode, PopupBase> mPopupCache = new Dictionary<ePopupMode, PopupBase>(); //弹出框的字典
+	public PopupInfo GetCurrentPopup() //从栈中取出当前的弹出框
 	{
 		PopupInfo result = null;
 		if (mPopupStack.Count > 0)
@@ -309,7 +309,7 @@ public class Popup : MonoBehaviour
 		}
 		return result;
 	}
-	PopupInfo PopPopup()
+	PopupInfo PopPopup() //移除栈顶的窗口
 	{
 		PopupInfo result = null;
 		if (mPopupStack.Count > 0)
@@ -319,7 +319,7 @@ public class Popup : MonoBehaviour
 		}
 		return result;
 	}
-	void StackPopup(PopupInfo menu)
+	void StackPopup(PopupInfo menu) //入栈
 	{
 		PopupInfo current = GetCurrentPopup();
 		if(current != null)
@@ -329,38 +329,39 @@ public class Popup : MonoBehaviour
 		mPopupStack.Insert(0, menu);
 	}
 
-	public void StackPopup(ePopupMode mode, params object[] objs)
+	public void StackPopup(ePopupMode mode, params object[] objs) //入栈
 	{
 		PopupInfo menu = new PopupInfo(mode, null, objs);
 		mPopupStack.Insert(0, menu);
 	}
 
-	PopupBase Load(ePopupMode mode)
+	PopupBase Load(ePopupMode mode) //加载弹出框
 	{
 		PopupBase result = null;
 
 		//Debug.LogFormat("Load {0}", mode);
-		if (mPopupCache.TryGetValue(mode, out result) == true)
+		if (mPopupCache.TryGetValue(mode, out result) == true) //如果字典中已经有了就直接返回
 		{
 			return result;
 		}
 
-		string classname = string.Format("Popup{0}", mode.ToString());
-		string path = string.Format("Prefab/Popup/{0}", classname);
+		string classname = string.Format("Popup{0}", mode.ToString()); //根据不同的mode获取不停的预设体来创建弹出框
+		string path = string.Format("Prefab/Popup/{0}", classname); //生成路径
 		//Debug.LogFormat("{0}", path);
-		Object loadPrefab = Resources.Load(path, typeof(GameObject));
+		Object loadPrefab = Resources.Load(path, typeof(GameObject)); //加载预设体
 		if (loadPrefab != null)
 		{
-			GameObject obj = (Instantiate(loadPrefab) as GameObject);
+            //设置预设体的信息
+			GameObject obj = (Instantiate(loadPrefab) as GameObject); //实例化一个弹出框 并把它转换为GameObj类型
 			obj.transform.parent = contents.transform;
 			obj.transform.localPosition = Vector3.zero;
 			obj.transform.localScale = Vector3.one;
 			obj.SetActive(false);
 
-			var popup_base = obj.GetComponent<PopupBase>();
-			if (mPopupCache.ContainsKey(mode) == false)
+			var popup_base = obj.GetComponent<PopupBase>(); //为啥能得到这个控件
+			if (mPopupCache.ContainsKey(mode) == false) //如果没有这个类型的弹出框
 			{
-				mPopupCache.Add(mode, popup_base);
+				mPopupCache.Add(mode, popup_base); //讲预设体和对应的mode名称存入字典当中
 			}
 
 			return popup_base;
@@ -371,11 +372,12 @@ public class Popup : MonoBehaviour
 		return result;
 	}
 
-	public void Show(ePopupMode mode, params object[] objs)
+	public void Show(ePopupMode mode, params object[] objs) //重载了上面的show
 	{
 		if (Application.isPlaying == false)
 			return;
 
+        //在这里只做了 停止当前的弹出框动画以及 讲现在的弹出框入栈的操作上面的show才是真正的show操作
 		PopupBase obj = Load(mode);
 		if(obj != null)
 		{
@@ -434,7 +436,7 @@ public class Popup : MonoBehaviour
 		ShowCallback(callback, Localization.Get(message_key), objs);
 	}
 
-	public PopupContainer PopStacks()
+	public PopupContainer PopStacks() //讲栈中元素全部弹出
 	{
 		var container = new PopupContainer(mPopupStack);
 
@@ -448,7 +450,7 @@ public class Popup : MonoBehaviour
 	
 	public void PushStacks(PopupContainer container)
 	{
-		mPopupStack.AddRange(container.Stacks);
+		mPopupStack.AddRange(container.Stacks); //讲contaimer这个列表放到mPopupStack 的末尾
 
 		Show(false, GetCurrentPopup().bShowImmediately);
 	}

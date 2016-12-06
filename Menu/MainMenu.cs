@@ -19,8 +19,8 @@ public class MainMenu : MenuBase
     public UIAtlas m_AtlasBattle;
     public UIAtlas m_AtlasGuildEmblem;
 
-    public GameObject m_CharacterInfoPrefab;
-    public GameObject []m_CharacterInfoIndicator;
+    public GameObject m_CharacterInfoPrefab; //角色信息的预设体
+    public GameObject []m_CharacterInfoIndicator; //下面的角色的UI容器
     public MainLayout m_MainLayout;
     public UILabel m_LabelPower;
 
@@ -111,9 +111,9 @@ public class MainMenu : MenuBase
         if (m_Profile == null)
             m_Profile = NGUITools.AddChild(m_ProfileIndicator, m_ProfilePrefab).GetComponent<PlayerProfile>();
 
-        InitCharacter();
-        UpdatePlayerInfo();
-        UpdateMenuNotify();
+        InitCharacter(); //创建下面的角色
+        UpdatePlayerInfo(); //创建和更新玩家的信息
+        UpdateMenuNotify(); //更新小红点
 
         AttendCheckedCallback = new OnPopupCloseDelegate(NotifyMailCheck);
         AttendCheck();
@@ -125,36 +125,38 @@ public class MainMenu : MenuBase
         return true;
     }
 
-    override public void UpdateMenu()
+    override public void UpdateMenu() //更新菜单的信息 如小红点啊什么的
     {
-        UpdatePlayerInfo();
+        UpdatePlayerInfo(); //更新玩家的信息
         InitCharacter();
-        UpdateMenuNotify();
+        UpdateMenuNotify(); //更新小红点
     }
 
     public override bool Uninit(bool bBack = true)
     {
-        m_Hottime.Clear();
+        m_Hottime.Clear(); //好像是更新时间的
         return base.Uninit(bBack);
     }
 
     ////////////////////////////////////////////////////////////////
-    void UpdatePlayerInfo()
+    void UpdatePlayerInfo() //创建和更新玩家的信息
     {
         if (m_Profile == null)
-            m_Profile = NGUITools.AddChild<PlayerProfile>(m_ProfileIndicator, m_ProfilePrefab);
+            m_Profile = NGUITools.AddChild<PlayerProfile>(m_ProfileIndicator, m_ProfilePrefab); //往主界面中添加 玩家信息的预设体
 
-        var player_info = Network.PlayerInfo;
+        var player_info = Network.PlayerInfo; //拉取玩家的信息
         if (player_info != null && m_Profile != null)
-            m_Profile.UpdateProfile(Network.PlayerInfo.leader_creature, player_info.nickname, player_info.player_level, OnProfile);
+            m_Profile.UpdateProfile(Network.PlayerInfo.leader_creature, player_info.nickname, player_info.player_level, OnProfile); //跟新玩家的信息
     }
 
-    void UpdateMenuNotify()
+    void UpdateMenuNotify()//更新小红点
     {
+        //n小红点
         m_MenuNotify[0].SetActive(Network.Instance.NotifyMenu.is_friends_requested);
         m_MenuNotify[1].SetActive(Network.Instance.NotifyMenu.is_store_free_loot);
         m_MenuNotify[2].SetActive(Network.Instance.NotifyMenu.is_pvp_rank_changed);
 
+        //地图相关的信息 小红点
         bool is_new_event_map = false;
         List<MapInfo> event_map_infos = MapInfoManager.Instance.Values.Where(m => m.MapType == "event").ToList();
         foreach (var map_info in event_map_infos)
@@ -171,10 +173,10 @@ public class MainMenu : MenuBase
             SaveDataManger.Instance.InitFromFile();
         }
 
-        TeamData team_data = TeamDataManager.Instance.GetTeam(pe_Team.Main);
-        m_MainLayout.Init(team_data);
+        TeamData team_data = TeamDataManager.Instance.GetTeam(pe_Team.Main); //获取到队伍的信息
+        m_MainLayout.Init(team_data); //初始化队伍的角色容器的信息
 
-        UpdateCharacterInfo();
+        UpdateCharacterInfo(); //创建角色
         
         m_LabelPower.text = Localization.Format("PowerValue", team_data == null ? 0 : team_data.Power);
     }
@@ -182,26 +184,26 @@ public class MainMenu : MenuBase
     List<UICharacterInfo> m_ListCharacterInfos = new List<UICharacterInfo>();
     public void UpdateCharacterInfo()
     {
-        TeamData team_data = TeamDataManager.Instance.GetTeam(pe_Team.Main);
+        TeamData team_data = TeamDataManager.Instance.GetTeam(pe_Team.Main); //得到队伍的信息
         for (int i = 0; i < m_MainLayout.m_Characters.Length; i++)
         {
             if (m_ListCharacterInfos.Count <= i)
             {
-                UICharacterInfo info = NGUITools.AddChild(m_CharacterInfoIndicator[i], m_CharacterInfoPrefab).GetComponent<UICharacterInfo>();
-                m_ListCharacterInfos.Add(info);
+                UICharacterInfo info = NGUITools.AddChild(m_CharacterInfoIndicator[i], m_CharacterInfoPrefab).GetComponent<UICharacterInfo>(); //添加角色信息的预设体
+                m_ListCharacterInfos.Add(info); //往数组里面添加角色额信息
             }
             if (team_data != null && i < team_data.Creatures.Count)
             {
-                m_ListCharacterInfos[i].UpdateInfo(team_data.Creatures[i].creature, 5);
+                m_ListCharacterInfos[i].UpdateInfo(team_data.Creatures[i].creature, 5); //绘制或者更新角色的信息 
             }
             else
                 m_ListCharacterInfos[i].UpdateInfo(null, 5);
         }
     }
 
-    void Update()
+    void Update() //
     {
-        UpdateCharacters();
+        UpdateCharacters(); //更新角色的信息
         
         if (AttendManager.Instance.IsInit == true)
             AttendNotifyCheck();
@@ -223,7 +225,7 @@ public class MainMenu : MenuBase
     bool is_kingsGiftInit = false;
         
 
-    void OnCharacter()
+    void OnCharacter() //点击角色
     {
         Ray main_ray = UICamera.currentRay;
 
@@ -234,21 +236,21 @@ public class MainMenu : MenuBase
 
         if (Physics.Raycast(main_ray, out hitInfo, dist, mask))
         {
-            selected_character = CoreUtility.GetParentComponent<UICharacterContainer>(hitInfo.collider.transform);
+            selected_character = CoreUtility.GetParentComponent<UICharacterContainer>(hitInfo.collider.transform); //得到选中 的角色
             if (selected_character)
             {
-                OpenCharacterDetail();
+                OpenCharacterDetail(); //打开角色的信息界面
             }
         }
     }
 
-    void OpenCharacterDetail()
+    void OpenCharacterDetail() //显示角色的详细信息
     {
         if (selected_character == null)
             return;
 
-        MenuParams menu = new MenuParams();
-        menu.AddParam<Creature>(CreatureManager.Instance.GetInfoByIdx(selected_character.CharacterAsset.Asset.Creature.Idx));
+        MenuParams menu = new MenuParams(); //创建场景的字典 用来存放场景的信息
+        menu.AddParam<Creature>(CreatureManager.Instance.GetInfoByIdx(selected_character.CharacterAsset.Asset.Creature.Idx)); //通过选中的角色的信息创建角色的信息界面
         menu.AddParam("Creatures", m_MainLayout.Creatures);
 
         GameMain.Instance.ChangeMenu(GameMenu.HeroInfoDetail, menu);
@@ -278,7 +280,7 @@ public class MainMenu : MenuBase
 
     float m_NextUpdateCharacterTime = 0f;
     List<UICharacterContainer> m_NextUpdateCharacters = null;
-    void UpdateCharacters()
+    void UpdateCharacters() //更新角色的状态 和 动作
     {
         if (m_NextUpdateCharacters == null || m_NextUpdateCharacters.Count == 0)
         {
@@ -287,6 +289,7 @@ public class MainMenu : MenuBase
         if (m_NextUpdateCharacters == null || m_NextUpdateCharacters.Count == 0)
             return;
 
+        //随机时间动一次
         float time = Time.time;
         if (m_NextUpdateCharacterTime < time)
         {
@@ -299,6 +302,7 @@ public class MainMenu : MenuBase
         }
     }
 
+    //点击菜单 会响应 主界面上面的每个 建筑按钮的点击
     public void OnClickMenu(GameObject obj)
     {
         if (obj == null)
@@ -355,7 +359,7 @@ public class MainMenu : MenuBase
         }
     }
 
-    void OnAdventure()
+    void OnAdventure() //相应冒险按钮
     {
         //        if (Network.)
         if (CreatureManager.Instance.Creatures.Count(c => c.Grade > 0) == 0)
@@ -446,7 +450,7 @@ public class MainMenu : MenuBase
         m_AttendNotify.SetActive(AttendManager.Instance.isAvailableReward);
     }
 
-    void NotifyMailCheck()
+    void NotifyMailCheck() //检查邮件是不是
     {
         if (Network.Instance.UnreadMailState != pe_UnreadMailState.MainMenuOpen)
             return;

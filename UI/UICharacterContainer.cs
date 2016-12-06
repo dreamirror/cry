@@ -2,9 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
+//角色的容器
 [AddComponentMenu("SmallHeroes/UI/UICharacterContainer")]
-public class UICharacterContainer : UIWidget
+public class UICharacterContainer : UIWidget //这个类是NGUI的最基础的类  个人理解可以类比为cocos2d 的node类 可以用作空的容器
 {
 	override public eWidgetDepth DepthType { get { return eWidgetDepth.Character; } }
 

@@ -13,7 +13,7 @@ public class SaveDataManger : MNS.Singleton<SaveDataManger>
 
     public SaveDataManger()
     {
-        m_DataContainer = new List<ISaveData>(); //下面的这些类全部都是继承了ISaveData 接口 会在遍历的时候将这些类中的数据全部保存起来
+        m_DataContainer = new List<ISaveData>(); //下面的这些类全部都是继承了ISaveData 接口
         m_DataContainer.Add(ItemManager.Instance);
         m_DataContainer.Add(EquipManager.Instance);
         m_DataContainer.Add(RuneManager.Instance);
