@@ -63,11 +63,11 @@ public class Network : Singleton<Network> {
 #if UNITY_EDITOR || UNITY_STANDALONE
   //  string server_uri = "http://localhost:3020";
    // public string GetChattingUri = "http://localhost:3010/chat";
-	string server_uri = "http://sh_dev.monsmile.com:4120";
-	public string GetChattingUri = "http://sh_dev.monsmile.com:4110/chat";
+	//string server_uri = "http://sh_dev.monsmile.com:4120";
+	//public string GetChattingUri = "http://sh_dev.monsmile.com:4110/chat";
 
-   // string server_uri = "http://sh_dev.monsmile.com:4220";
-   // public string GetChattingUri = "http://sh_dev.monsmile.com:4210/chat";
+    string server_uri = "http://sh_dev.monsmile.com:4220";
+    public string GetChattingUri = "http://sh_dev.monsmile.com:4210/chat";
 #elif SH_DEV
     string server_uri = "http://sh_dev.monsmile.com:4120";
     public string GetChattingUri = "http://sh_dev.monsmile.com:4110/chat";
@@ -75,7 +75,7 @@ public class Network : Singleton<Network> {
     string server_uri = "http://sh_dev.monsmile.com:4220";
     public string GetChattingUri = "http://sh_dev.monsmile.com:4210/chat";
 #endif
-
+     
     public bool IsInit { get; private set; }
     public void Init()
     {
