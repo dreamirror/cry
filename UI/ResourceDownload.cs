@@ -55,7 +55,7 @@ public class ResourceDownload : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void Update() //更新文本和进度条
     {
         switch (m_State)
         {
@@ -129,11 +129,11 @@ public class ResourceDownload : MonoBehaviour
 
         //Application.internetReachability检查网络是不是畅通的
         if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork) //
-            Popup.Instance.ShowConfirmKey(new PopupConfirm.Callback(OnStartDownload), "ConfirmDownload"); //确认下载 的耳机确认框
+            Popup.Instance.ShowConfirmKey(new PopupConfirm.Callback(OnStartDownload), "ConfirmDownload"); //确认下载 的二级确认框
         else if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork) //如果是本地的局域网就直接下载
             OnDownload(m_BundleVersion);
     }
-    void OnStartDownload(bool isConfirm)
+    void OnStartDownload(bool isConfirm)//点击确认下载
     {
         if (isConfirm)
             OnDownload(m_BundleVersion);
@@ -299,7 +299,7 @@ public class ResourceDownload : MonoBehaviour
         if (File.Exists(m_DownloadDir + m_DownloadFilename) == true)
             File.Delete(m_DownloadDir + m_DownloadFilename); //删除以前的包
 
-        m_Request = new HTTPRequest(new Uri(URL), false, true, (req, resp) =>  //这是一个lambda 表达式 参数 是req 和resp 的匿名函数
+        m_Request = new HTTPRequest(new Uri(URL), false, true, (req, resp) =>  //这是一个lambda 表达式 参数 是req 和resp 的匿名函数 这是一个http 的请求
         {
             //check available space
             if (pre_download_size_check == false)
@@ -307,38 +307,39 @@ public class ResourceDownload : MonoBehaviour
                 pre_download_size_check = true;
 
                 //Debug.LogFormat("[Download File Size:{0}MB] [AvailableSize:{1}MB]", req.DownloadLength / MAGABYTE, GetStorageFreeSpace());
-                if (((req.DownloadLength / MEGABYTE) < GetStorageFreeSpace()) == false)
+                if (((req.DownloadLength / MEGABYTE) < GetStorageFreeSpace()) == false) //判断剩余的控件够不够 如果不够
                 {
+                    //弹出提示框
                     Popup.Instance.ShowCallbackKey(new PopupCallback.Callback(new Action(Start), null), string.Format("Not Enough Free Space! \n [Need:{0}] [Now Free Space:{1}]", req.DownloadLength / MEGABYTE, GetStorageFreeSpace()));
-                    req.Abort();
+                    req.Abort(); //放弃更新
                     m_Request = null;
                     return;
                 }
             }
 
-            switch (req.State)
+            switch (req.State) //判断返回的状态
             {
                 // The request is currently processed. With UseStreaming == true, we can get the streamed fragments here
 
-                case HTTPRequestStates.Processing:
+                case HTTPRequestStates.Processing: //如果是正在进行
                     // Get the fragments, and save them
-                    ProcessFragments(resp.GetStreamedFragments());
+                    ProcessFragments(resp.GetStreamedFragments()); //根据返回的数据创建文件
 
-                    m_ProgressValue = req.Downloaded / (float)req.DownloadLength;
+                    m_ProgressValue = req.Downloaded / (float)req.DownloadLength; //更新进度条
 
                     break;
 
                 // The request finished without any problem.
-                case HTTPRequestStates.Finished:
+                case HTTPRequestStates.Finished: //完成
                     if (resp.IsSuccess)
                     {
                         // Save any remaining fragments
-                        ProcessFragments(resp.GetStreamedFragments());
+                        ProcessFragments(resp.GetStreamedFragments()); //根据返回的数据创建文件
 
                         // Completly finished
-                        if (resp.IsStreamingFinished)
+                        if (resp.IsStreamingFinished) //是不是传输完成
                         {
-                            Unzip();
+                            Unzip(); //解压
 
                             m_Request = null;
                         }
@@ -373,7 +374,7 @@ public class ResourceDownload : MonoBehaviour
                     break;
 
                 // The request aborted, initiated by the user.
-                case HTTPRequestStates.Aborted:
+                case HTTPRequestStates.Aborted: //放弃
                     status = "Request Aborted!";
                     Debug.LogWarning(status);
                     Popup.Instance.ShowMessage(status);
@@ -429,15 +430,16 @@ public class ResourceDownload : MonoBehaviour
     /// <summary>
     /// In this function we can do whatever we want with the downloaded bytes. In this sample we will do nothing, just set the metadata to display progress.
     /// </summary>
-    void ProcessFragments(List < byte[] > fragments)
+    void ProcessFragments(List < byte[] > fragments) //得到传过来的文创建文件
     {
             if (fragments != null && fragments.Count > 0)
             {
-                using (System.IO.FileStream fs = new System.IO.FileStream(System.IO.Path.Combine(m_DownloadDir, m_DownloadFilename), System.IO.FileMode.Append))
+                //使用suing 在using语句块拘束之后 （）里面的东西会自动释放
+                using (System.IO.FileStream fs = new System.IO.FileStream(System.IO.Path.Combine(m_DownloadDir, m_DownloadFilename), System.IO.FileMode.Append))// System.IO.FileMode.Append若存在文件，则打开该文件并查找到文件尾，或者创建一个新文件
                 {
                     for (int i = 0; i < fragments.Count; ++i)
                     {
-                        fs.Write(fragments[i], 0, fragments[i].Length);
+                        fs.Write(fragments[i], 0, fragments[i].Length); //往创建的文件中写入东西
                     }
                 }
             }
