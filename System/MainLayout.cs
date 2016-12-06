@@ -12,13 +12,13 @@ using UnityEditor;
 public class MainLayout : MonoBehaviour
 {
     public float horizontal = 0f;
-    public HFX_ParticleSystem m_BoostFx { get; set; }
+    public HFX_ParticleSystem m_BoostFx { get; set; } //粒子系统
 
-    public List<Creature> Creatures { get; private set; }
+    public List<Creature> Creatures { get; private set; } //生物的列表
 
     public bool IsDragOut { get; private set; }
-    UICharacterContainer m_DragContainer = null;
-    public UICharacterContainer DragContainer
+    UICharacterContainer m_DragContainer = null;//角色的容器
+    public UICharacterContainer DragContainer //
     {
         get { return m_DragContainer; }
         set
@@ -26,7 +26,7 @@ public class MainLayout : MonoBehaviour
             if (m_DragContainer != null)
             {
                 m_DragContainer.IsDrag = false;
-                DragContainer.Character.PlayAction("social");
+                DragContainer.Character.PlayAction("social"); //播放一个动作
             }
             m_DragContainer = value;
             if (m_DragContainer != null)
@@ -46,7 +46,7 @@ public class MainLayout : MonoBehaviour
         }
     }
 
-    public UICharacterContainer[] m_Characters;
+    public UICharacterContainer[] m_Characters; //角色列表
 
     public bool IsBatching { get; private set; }
 
@@ -54,7 +54,7 @@ public class MainLayout : MonoBehaviour
     {
     }
 
-    public void Batch()
+    public void Batch()//将角色的位置都设置为0
     {
         Vector3 pos = Vector3.zero;
 
@@ -65,22 +65,22 @@ public class MainLayout : MonoBehaviour
         }
     }
 
-    public void Batch(int index)
+    public void Batch(int index) //将编号为index的角色位置设置为0
     {
         Vector3 pos = Vector3.zero;
         pos.x = GetPosition(index);
         m_Characters[index].Batch(pos);
     }
 
-    public float GetPosition(int index)
+    public float GetPosition(int index) //得到编号为index的角色 的位置
     {
         return (index - m_Characters.Length / 2) * -horizontal;
     }
 
     public void Rebatch()
     {
-        List<UICharacterContainer> list = m_Characters.Where(c => c.IsInit == true && c != DragContainer).ToList();
-        list.AddRange(m_Characters.Where(c => c.IsInit == false || c == DragContainer));
+        List<UICharacterContainer> list = m_Characters.Where(c => c.IsInit == true && c != DragContainer).ToList();//取出已经初始化的 不是DragContainer
+        list.AddRange(m_Characters.Where(c => c.IsInit == false || c == DragContainer)); //添加还没有初始化的 是DragContainer
 
         m_Characters = list.ToArray();
         IsBatching = true;

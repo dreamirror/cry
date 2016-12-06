@@ -8,7 +8,7 @@ public class UICharacterContainer : UIWidget //这个类是NGUI的最基础的�
 {
 	override public eWidgetDepth DepthType { get { return eWidgetDepth.Character; } }
 
-	public enum Mode
+	public enum Mode //角色的状态
 	{
 		UI_Normal,
 		UI_Battle,
@@ -25,7 +25,7 @@ public class UICharacterContainer : UIWidget //这个类是NGUI的最基础的�
 		}
 	}
 
-	Character m_Character = null;
+	Character m_Character = null; //角色
 	public Character Character
 	{
 		get

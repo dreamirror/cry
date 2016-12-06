@@ -42,6 +42,7 @@ public class ResourceDownload : MonoBehaviour
     void OnRequestAssetBundleVersion(C2L.RequestAssetBundleVersion packet, C2L.RequestAssetBundleVersionAck ack) //网络初始化之后的回调
     {
         DownloadUrl = ack.download_url; //更新的地址
+        Debug.LogFormat("000000000000:{0}", DownloadUrl);
         m_SkipHashCheck = ack.skip_hash_check; //跳过hash校验
         ProcessBundle(ack.asset_bundle_version, ack.asset_bundle_delta_version); //可能是当前的版本和下一个版本
     }

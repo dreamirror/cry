@@ -65,6 +65,9 @@ public class Network : Singleton<Network> {
    // public string GetChattingUri = "http://localhost:3010/chat";
 	string server_uri = "http://sh_dev.monsmile.com:4120";
 	public string GetChattingUri = "http://sh_dev.monsmile.com:4110/chat";
+
+   // string server_uri = "http://sh_dev.monsmile.com:4220";
+   // public string GetChattingUri = "http://sh_dev.monsmile.com:4210/chat";
 #elif SH_DEV
     string server_uri = "http://sh_dev.monsmile.com:4120";
     public string GetChattingUri = "http://sh_dev.monsmile.com:4110/chat";
@@ -104,6 +107,11 @@ public class Network : Singleton<Network> {
     {
         var packet = new C2L.RequestAssetBundleVersion();
         packet.app_info = GetAppInfo();
+        Debug.LogFormat("bundle_version:{0}", packet.app_info.bundle_version);
+        Debug.LogFormat("platform:{0}", packet.app_info.platform);
+        Debug.LogFormat("bundle_identifier:{0}", packet.app_info.bundle_identifier);
+        Debug.LogFormat("device_info:{0}", packet.app_info.device_info);
+        Debug.LogFormat("dataPath:{0}", Application.dataPath);
         game_server.JsonAsync<C2L.RequestAssetBundleVersion, C2L.RequestAssetBundleVersionAck>(packet, callback);
     }
 

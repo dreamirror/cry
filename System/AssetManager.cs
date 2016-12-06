@@ -156,6 +156,7 @@ public class AssetManager {
 #endif
         if (AllAssetBundle == null)
         {
+            Debug.LogFormat("--------------- : {0}", strPath);
             AllAssetBundle = AssetBundle.LoadFromFile(strPath);
         }
         if (AllAssetBundle == null)
